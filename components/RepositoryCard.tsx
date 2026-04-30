@@ -1,14 +1,56 @@
 import { GitHubRepository } from "@/types/github";
+import { StarIcon } from "phosphor-react-native";
 import styled from "styled-components/native";
+
+const languageColors: Record<string, string> = {
+  TypeScript: "#3178c6",
+  JavaScript: "#d9c951",
+  Java: "#b07219",
+  Python: "#3572A5",
+  Go: "#00ADD8",
+  Vue: "#41B883",
+  Makefile: "#427819",
+  Shell: "#89e051",
+  HTML: "#e34c26",
+  CSS: "#5f428a",
+  Rust: "#dea584",
+  Swift: "#F05138",
+  Kotlin: "#A97BFF",
+  C: "#6e6e6e",
+  "C++": "#f34b7d",
+  "C#": "#178600",
+  PHP: "#4F5D95",
+  Ruby: "#701516",
+  Dart: "#00B4AB",
+  Elixir: "#6e4a7e",
+  default: "#007aff",
+};
+
+interface RepoLanguageProps {
+  language?: string;
+}
 
 export default function RepositoryCard({ data }: { data: GitHubRepository }) {
   return (
     <RepoCard>
       <RepoHeader>
-        <RepoTitle>{data.name}</RepoTitle>
+        <RepoTitle numberOfLines={1}>{data.name}</RepoTitle>
         <RepoOwner>{data.owner.login}</RepoOwner>
       </RepoHeader>
-      <StarsCount>{data.stargazers_count} stars</StarsCount>
+      <RepoDescription numberOfLines={3} ellipsizeMode="tail">
+        {data.description}
+      </RepoDescription>
+      <RepoFooter>
+        <StarsContainer>
+          <StarIcon size={16} />
+          <StargazeCount>{data.stargazers_count}</StargazeCount>
+        </StarsContainer>
+        {data.language ? (
+          <RepoLanguage language={data.language}>{data.language}</RepoLanguage>
+        ) : (
+          <></>
+        )}
+      </RepoFooter>
     </RepoCard>
   );
 }
@@ -36,8 +78,47 @@ const RepoTitle = styled.Text`
   font-size: 18px;
   font-weight: bold;
   color: #007aff;
+  flex: 1;
+  margin-right: 10px;
 `;
 
-const RepoOwner = styled.Text``;
+const RepoOwner = styled.Text`
+  flex-shrink: 0;
+  color: #586069;
+  font-size: 14px;
+`;
 
-const StarsCount = styled.Text``;
+const StarsContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-top: 8px;
+  gap: 3px;
+`;
+
+const StargazeCount = styled.Text`
+  font-size: 14px;
+  color: #586069;
+  margin-left: 4px;
+  include-font-padding: false;
+  line-height: 18px;
+`;
+
+const RepoDescription = styled.Text``;
+
+const RepoFooter = styled.View`
+  margin-top: 12px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+`;
+
+const RepoLanguage = styled.Text<RepoLanguageProps>`
+  font-size: 12px;
+  color: #fff;
+  background-color: ${({ language }) =>
+    languageColors[language || ""] || languageColors.default};
+  padding: 8px;
+  border-radius: 14px;
+  font-weight: bold;
+`;
