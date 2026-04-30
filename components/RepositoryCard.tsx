@@ -46,10 +46,8 @@ export default function RepositoryCard({ data }: Props) {
   const handleToggleFavorite = () => {
     if (isFavorite) {
       unfavorite(data.id);
-      console.log("desfavoritou");
     } else {
       favorite(data as GitHubRepository);
-      console.log("favoritou");
     }
   };
   return (
