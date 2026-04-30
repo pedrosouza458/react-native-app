@@ -1,5 +1,7 @@
-import { GitHubRepository } from "@/types/github";
+import { useRepoState } from "@/store/useRepoStore";
+import { GitHubRepository, SavedRepository } from "@/types/github";
 import { StarIcon } from "phosphor-react-native";
+import { Pressable } from "react-native";
 import styled from "styled-components/native";
 
 const languageColors: Record<string, string> = {
@@ -30,28 +32,55 @@ interface RepoLanguageProps {
   language?: string;
 }
 
-export default function RepositoryCard({ data }: { data: GitHubRepository }) {
+interface Props {
+  data: GitHubRepository | SavedRepository;
+}
+
+export default function RepositoryCard({ data }: Props) {
+  const { savedRepos, favorite, unfavorite } = useRepoState();
+
+  const isFavorite = savedRepos.some(
+    (repo: SavedRepository) => repo.id === data.id,
+  );
+
+  const handleToggleFavorite = () => {
+    if (isFavorite) {
+      unfavorite(data.id);
+      console.log("desfavoritou");
+    } else {
+      favorite(data as GitHubRepository);
+      console.log("favoritou");
+    }
+  };
   return (
-    <RepoCard>
-      <RepoHeader>
-        <RepoTitle numberOfLines={1}>{data.name}</RepoTitle>
-        <RepoOwner>{data.owner.login}</RepoOwner>
-      </RepoHeader>
-      <RepoDescription numberOfLines={3} ellipsizeMode="tail">
-        {data.description}
-      </RepoDescription>
-      <RepoFooter>
-        <StarsContainer>
-          <StarIcon size={16} />
-          <StargazeCount>{data.stargazers_count}</StargazeCount>
-        </StarsContainer>
-        {data.language ? (
-          <RepoLanguage language={data.language}>{data.language}</RepoLanguage>
-        ) : (
-          <></>
-        )}
-      </RepoFooter>
-    </RepoCard>
+    <Pressable onPress={handleToggleFavorite}>
+      <RepoCard>
+        <RepoHeader>
+          <RepoTitle numberOfLines={1}>{data.name}</RepoTitle>
+          <RepoOwner>{data.owner.login}</RepoOwner>
+        </RepoHeader>
+        <RepoDescription numberOfLines={3} ellipsizeMode="tail">
+          {data.description}
+        </RepoDescription>
+        <RepoFooter>
+          <StarsContainer>
+            <StarIcon
+              size={16}
+              weight={isFavorite ? "fill" : "regular"}
+              color={isFavorite ? "#ebd534" : "#8c8c8c"}
+            />
+            <StargazeCount>{data.stargazers_count}</StargazeCount>
+          </StarsContainer>
+          {data.language ? (
+            <RepoLanguage language={data.language}>
+              {data.language}
+            </RepoLanguage>
+          ) : (
+            <></>
+          )}
+        </RepoFooter>
+      </RepoCard>
+    </Pressable>
   );
 }
 

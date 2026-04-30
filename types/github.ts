@@ -77,3 +77,17 @@ export interface GitHubSearchResponse {
   incomplete_results: boolean;
   items: GitHubRepository[];
 }
+
+export interface SavedRepository {
+  id: number;
+  name: string;
+  full_name: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+  description: string | null;
+  stargazers_count: number;
+  language: string | null;
+  html_url: string;
+}
