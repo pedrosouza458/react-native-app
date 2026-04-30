@@ -1,5 +1,6 @@
 import { useRepoState } from "@/store/useRepoStore";
 import { GitHubRepository, SavedRepository } from "@/types/github";
+import { useSQLiteContext } from "expo-sqlite";
 import { StarIcon } from "phosphor-react-native";
 import { Pressable } from "react-native";
 import styled from "styled-components/native";
@@ -39,15 +40,17 @@ interface Props {
 export default function RepositoryCard({ data }: Props) {
   const { savedRepos, favorite, unfavorite } = useRepoState();
 
+  const db = useSQLiteContext();
+
   const isFavorite = savedRepos.some(
     (repo: SavedRepository) => repo.id === data.id,
   );
 
   const handleToggleFavorite = () => {
     if (isFavorite) {
-      unfavorite(data.id);
+      unfavorite(data.id, db);
     } else {
-      favorite(data as GitHubRepository);
+      favorite(data as GitHubRepository, db);
     }
   };
   return (

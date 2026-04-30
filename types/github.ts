@@ -91,3 +91,15 @@ export interface SavedRepository {
   language: string | null;
   html_url: string;
 }
+
+export interface FavoriteRepository {
+  id: number;
+  name: string;
+  full_name: string;
+  login: string;
+  avatar_url: string;
+  description: string | null;
+  stargazers_count: number;
+  language: string | null;
+  html_url: string;
+}

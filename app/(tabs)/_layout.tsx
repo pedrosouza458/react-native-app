@@ -1,12 +1,13 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, Tabs } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { Pressable } from "react-native";
 
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useRepoState } from "@/store/useRepoStore";
+import { useSQLiteContext } from "expo-sqlite";
 import { StarIcon } from "phosphor-react-native";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -19,7 +20,13 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const db = useSQLiteContext();
+  const loadFavoriteRepos = useRepoState((state) => state.loadFavorites);
   const savedCount = useRepoState((state) => state.savedRepos.length);
+
+  useEffect(() => {
+    if (db) loadFavoriteRepos(db);
+  }, [db, loadFavoriteRepos]);
 
   return (
     <Tabs
