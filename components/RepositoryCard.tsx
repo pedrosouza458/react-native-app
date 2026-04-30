@@ -1,5 +1,6 @@
 import { useRepoState } from "@/store/useRepoStore";
 import { GitHubRepository, SavedRepository } from "@/types/github";
+import { Link } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { StarIcon } from "phosphor-react-native";
 import { Pressable } from "react-native";
@@ -54,16 +55,36 @@ export default function RepositoryCard({ data }: Props) {
     }
   };
   return (
-    <Pressable onPress={handleToggleFavorite}>
-      <RepoCard>
-        <RepoHeader>
-          <RepoTitle numberOfLines={1}>{data.name}</RepoTitle>
-          <RepoOwner>{data.owner.login}</RepoOwner>
-        </RepoHeader>
-        <RepoDescription numberOfLines={3} ellipsizeMode="tail">
-          {data.description}
-        </RepoDescription>
-        <RepoFooter>
+    <RepoCard>
+      <Link
+        href={{
+          pathname: "/repo/[id]",
+          params: {
+            id: data.id,
+            name: data.name,
+            description: data.description ?? "",
+            full_name: data.full_name,
+            login: data.owner.login,
+            avatar_url: data.owner.avatar_url,
+            stargazers_count: data.stargazers_count,
+            language: data.language ?? "",
+            html_url: data.html_url,
+          },
+        }}
+        asChild
+      >
+        <Pressable>
+          <RepoHeader>
+            <RepoTitle numberOfLines={1}>{data.name}</RepoTitle>
+            <RepoOwner>{data.owner.login}</RepoOwner>
+          </RepoHeader>
+          <RepoDescription numberOfLines={3} ellipsizeMode="tail">
+            {data.description}
+          </RepoDescription>
+        </Pressable>
+      </Link>
+      <RepoFooter>
+        <Pressable onPress={handleToggleFavorite}>
           <StarsContainer>
             <StarIcon
               size={16}
@@ -72,16 +93,14 @@ export default function RepositoryCard({ data }: Props) {
             />
             <StargazeCount>{data.stargazers_count}</StargazeCount>
           </StarsContainer>
-          {data.language ? (
-            <RepoLanguage language={data.language}>
-              {data.language}
-            </RepoLanguage>
-          ) : (
-            <></>
-          )}
-        </RepoFooter>
-      </RepoCard>
-    </Pressable>
+        </Pressable>
+        {data.language ? (
+          <RepoLanguage language={data.language}>{data.language}</RepoLanguage>
+        ) : (
+          <></>
+        )}
+      </RepoFooter>
+    </RepoCard>
   );
 }
 
