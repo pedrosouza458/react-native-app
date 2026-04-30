@@ -1,9 +1,12 @@
 export async function getTrendingRepos() {
   try {
     const baseUrl = "https://api.github.com/search/repositories";
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+    const dateString = date.toLocaleDateString("en-CA");
 
     const params = new URLSearchParams({
-      q: "created:>2026-04-23",
+      q: `created:>${dateString}`,
       sort: "stars",
       order: "desc",
     });
