@@ -37,14 +37,13 @@ export function RepositoryListView({
 
 const Container = styled.View`
   flex: 1;
-  gap: 16px;
   padding: 16px;
 `;
 
 const Title = styled.Text`
   font-size: 26px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 26px;
 `;
 
 const LoadingText = styled.Text`
