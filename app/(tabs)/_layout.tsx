@@ -40,7 +40,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Trending",
+          title: "GitList",
+          headerTitleAlign: "left",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
             <Link href="/modal" asChild>
@@ -61,7 +62,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "Favorites",
+          title: "GitList",
+          headerTitleAlign: "left",
           tabBarIcon: ({ color }) => <StarIcon color={color} />,
           tabBarBadge: savedCount > 0 ? savedCount : undefined,
           tabBarBadgeStyle: {
