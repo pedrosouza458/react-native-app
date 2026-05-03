@@ -1,4 +1,5 @@
 import { SavedRepository } from "@/types/github";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { Code, GithubLogo, Star } from "phosphor-react-native";
 import React from "react";
 import { Linking } from "react-native";
@@ -13,45 +14,55 @@ interface StatItemProps {
 }
 
 export default function RepositoryDetails({ data }: Props) {
+  const { name } = useLocalSearchParams<{ name: string }>();
   const handleOpenGithub = () => {
     Linking.openURL(data.html_url);
   };
 
   return (
-    <Container>
-      <Header>
-        <Avatar source={{ uri: data.owner.avatar_url }} />
-        <OwnerName>{data.owner.login}</OwnerName>
-        <RepoName>{data.name}</RepoName>
-        <FullName>{data.full_name}</FullName>
-      </Header>
+    <>
+      <Stack.Screen
+        options={{
+          title: name || "Repository",
+          headerTitleAlign: "center",
+        }}
+      />
+      <Container>
+        <Header>
+          <Avatar source={{ uri: data.owner.avatar_url }} />
+          <ServiceName>gitlist</ServiceName>
+          <OwnerName>{data.owner.login}</OwnerName>
+          <RepoName>{data.name}</RepoName>
+          <FullName>{data.full_name}</FullName>
+        </Header>
 
-      <StatsRow>
-        <StatItem>
-          <Star size={20} color="#EBD534" weight="fill" />
-          <StatValue>{data.stargazers_count.toLocaleString()}</StatValue>
-          <StatLabel>Stars</StatLabel>
-        </StatItem>
+        <StatsRow>
+          <StatItem>
+            <Star size={20} color="#EBD534" weight="fill" />
+            <StatValue>{data.stargazers_count.toLocaleString()}</StatValue>
+            <StatLabel>Stars</StatLabel>
+          </StatItem>
 
-        <StatItem>
-          <Code size={20} color="#586069" />
-          <StatValue>{data.language || "N/A"}</StatValue>
-          <StatLabel>Language</StatLabel>
-        </StatItem>
-      </StatsRow>
+          <StatItem>
+            <Code size={20} color="#586069" />
+            <StatValue>{data.language || "N/A"}</StatValue>
+            <StatLabel>Language</StatLabel>
+          </StatItem>
+        </StatsRow>
 
-      <Content>
-        <SectionTitle>Description</SectionTitle>
-        <Description>
-          {data.description || "No description provided for this repository."}
-        </Description>
+        <Content>
+          <SectionTitle>Description</SectionTitle>
+          <Description>
+            {data.description || "No description provided for this repository."}
+          </Description>
 
-        <GithubButton onPress={handleOpenGithub}>
-          <GithubLogo size={24} color="#FFF" weight="fill" />
-          <ButtonText>View on GitHub</ButtonText>
-        </GithubButton>
-      </Content>
-    </Container>
+          <GithubButton onPress={handleOpenGithub}>
+            <GithubLogo size={24} color="#FFF" weight="fill" />
+            <ButtonText>View on GitHub</ButtonText>
+          </GithubButton>
+        </Content>
+      </Container>
+    </>
   );
 }
 
@@ -77,6 +88,14 @@ const Avatar = styled.Image`
   border-color: #fff;
   margin-bottom: 16px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+`;
+
+const ServiceName = styled.Text`
+  font-size: 12px;
+  color: #586069;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
 `;
 
 const OwnerName = styled.Text`
