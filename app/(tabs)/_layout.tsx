@@ -40,7 +40,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "GitList",
+          title: "Trending",
           headerTitleAlign: "left",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
@@ -62,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "GitList",
+          title: "Favorites",
           headerTitleAlign: "left",
           tabBarIcon: ({ color }) => <StarIcon color={color} />,
           tabBarBadge: savedCount > 0 ? savedCount : undefined,
