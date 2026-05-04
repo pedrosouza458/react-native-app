@@ -6,6 +6,7 @@ import { Pressable } from "react-native";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import { syncDatabases } from "@/services/syncDatabases";
 import { useRepoState } from "@/store/useRepoStore";
 import { useSQLiteContext } from "expo-sqlite";
 import { StarIcon } from "phosphor-react-native";
@@ -25,8 +26,11 @@ export default function TabLayout() {
   const savedCount = useRepoState((state) => state.savedRepos.length);
 
   useEffect(() => {
-    if (db) loadFavoriteRepos(db);
-  }, [db, loadFavoriteRepos]);
+    if (db) {
+      loadFavoriteRepos(db);
+      syncDatabases();
+    }
+  }, [db]);
 
   return (
     <Tabs

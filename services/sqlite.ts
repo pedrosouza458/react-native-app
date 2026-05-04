@@ -2,6 +2,7 @@ import { type SQLiteDatabase } from "expo-sqlite";
 
 export async function initializeDatabase(db: SQLiteDatabase) {
   try {
+    // await db.execAsync(`DROP TABLE IF EXISTS favorite_repositories;`);
     await db.execAsync(`
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS favorite_repositories (
@@ -13,7 +14,9 @@ export async function initializeDatabase(db: SQLiteDatabase) {
      avatar_url TEXT,
      stargazers_count INTEGER NOT NULL DEFAULT 0,
      language TEXT,
-     html_url TEXT NOT NULL
+     html_url TEXT NOT NULL,
+     deleted INTEGER NOT NULL DEFAULT 0,
+     synced INTEGER NOT NULL DEFAULT 0
     );
     `);
     console.log("database initialized successfully");

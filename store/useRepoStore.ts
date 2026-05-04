@@ -1,3 +1,4 @@
+import { syncDatabases } from "@/services/syncDatabases";
 import {
   FavoriteRepository,
   GitHubRepository,
@@ -18,7 +19,7 @@ export const useRepoState = create<RepoState>((set) => ({
   loadFavorites: async (db) => {
     try {
       const rows = await db.getAllAsync<FavoriteRepository>(
-        "SELECT * FROM favorite_repositories",
+        "SELECT * FROM favorite_repositories WHERE DELETED = 0",
       );
 
       const savedRepos = rows.map(toDomain);
@@ -30,52 +31,64 @@ export const useRepoState = create<RepoState>((set) => ({
   favorite: async (repo, db) => {
     const favoriteRepo: SavedRepository = {
       id: repo.id,
-      name: repo.name,
-      full_name: repo.full_name,
-      description: repo.description,
+      name: repo.name || "",
+      full_name: repo.full_name || "",
+      description: repo.description || "",
       owner: {
-        login: repo.owner.login,
-        avatar_url: repo.owner.avatar_url,
+        login: repo.owner?.login || "unknown",
+        avatar_url: repo.owner?.avatar_url || "",
       },
-      language: repo.language,
-      stargazers_count: repo.stargazers_count,
-      html_url: repo.html_url,
+      language: repo.language || "Unknown",
+      stargazers_count: repo.stargazers_count || 0,
+      html_url: repo.html_url || "",
+      deleted: 0,
+      synced: 0,
     };
 
+    const params = [
+      favoriteRepo.id,
+      favoriteRepo.name,
+      favoriteRepo.full_name,
+      favoriteRepo.description,
+      favoriteRepo.owner.login,
+      favoriteRepo.owner.avatar_url,
+      favoriteRepo.stargazers_count,
+      favoriteRepo.language,
+      favoriteRepo.html_url,
+      0,
+      0,
+    ];
     try {
       await db.runAsync(
-        "INSERT INTO favorite_repositories (id, name, full_name, description, login, avatar_url, stargazers_count, language, html_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          favoriteRepo.id,
-          favoriteRepo.name,
-          favoriteRepo.full_name,
-          favoriteRepo.description ?? "",
-          favoriteRepo.owner.login,
-          favoriteRepo.owner.avatar_url,
-          favoriteRepo.stargazers_count,
-          favoriteRepo.language ?? "",
-          favoriteRepo.html_url,
-        ],
+        "INSERT OR REPLACE INTO favorite_repositories (id, name, full_name, description, login, avatar_url, stargazers_count, language, html_url, deleted, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        params,
       );
 
       set((state) => {
         return { savedRepos: [...state.savedRepos, favoriteRepo] };
       });
+
+      syncDatabases().catch((err) =>
+        console.error("Background sync failed", err),
+      );
     } catch (error) {
       console.error("Error saving repository in database.", error);
     }
   },
-  unfavorite: async (repoId, db) => {
+  unfavorite: async (id, db) => {
     try {
-      await db.runAsync("DELETE FROM favorite_repositories WHERE ID = ?", [
-        repoId,
-      ]);
+      await db.runAsync(
+        "UPDATE favorite_repositories SET deleted = 1 WHERE id = ?",
+        [id],
+      );
 
       set((state) => ({
-        savedRepos: state.savedRepos.filter((repo) => repo.id !== repoId),
+        savedRepos: state.savedRepos.filter((repo) => repo.id !== id),
       }));
+
+      syncDatabases();
     } catch (error) {
-      console.error("Error deleting favorite repo from database", error);
+      console.error("Error removing repository in database.", error);
     }
   },
 }));
@@ -93,6 +106,8 @@ function toDomain(row: FavoriteRepository): SavedRepository {
       login: row.login,
       avatar_url: row.avatar_url,
     },
+    deleted: row.deleted,
+    synced: row.synced,
   };
 }
 
@@ -107,5 +122,7 @@ function toDatabase(repo: SavedRepository): FavoriteRepository {
     stargazers_count: repo.stargazers_count,
     language: repo.language || "Unknown",
     html_url: repo.html_url,
+    deleted: repo.deleted,
+    synced: repo.synced,
   };
 }
