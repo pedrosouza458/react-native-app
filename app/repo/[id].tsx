@@ -1,13 +1,13 @@
 import RepositoryDetails from "@/components/RepositoryDetails";
 import { View } from "@/components/Themed";
-import { SavedRepository } from "@/types/github";
+import { SavedRepositoryDetails } from "@/types/github";
 import { useLocalSearchParams } from "expo-router";
 import { StyleSheet } from "react-native";
 
 export default function TabDetails() {
   const params = useLocalSearchParams();
 
-  const repoData: SavedRepository = {
+  const repoData: SavedRepositoryDetails = {
     id: Number(params.id),
     name: params.name as string,
     full_name: params.full_name as string,

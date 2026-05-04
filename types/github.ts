@@ -94,6 +94,20 @@ export interface SavedRepository {
   synced: number;
 }
 
+export interface SavedRepositoryDetails {
+  id: number;
+  name: string;
+  full_name: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+  description: string | null;
+  stargazers_count: number;
+  language: string | null;
+  html_url: string;
+}
+
 export interface FavoriteRepository {
   id: number;
   name: string;

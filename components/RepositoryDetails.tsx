@@ -1,4 +1,4 @@
-import { SavedRepository } from "@/types/github";
+import { SavedRepositoryDetails } from "@/types/github";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Code, GithubLogo, Star } from "phosphor-react-native";
 import React from "react";
@@ -6,7 +6,7 @@ import { Linking } from "react-native";
 import styled from "styled-components/native";
 
 interface Props {
-  data: SavedRepository;
+  data: SavedRepositoryDetails;
 }
 
 interface StatItemProps {

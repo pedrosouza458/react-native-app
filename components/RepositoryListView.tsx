@@ -3,19 +3,16 @@ import { FlatList } from "react-native";
 import styled from "styled-components/native";
 import RepositoryCard from "./RepositoryCard";
 
-interface Props {
-  data: GitHubRepository[] | SavedRepository[];
+interface Props<T extends GitHubRepository | SavedRepository> {
+  data: T[];
   title: string;
   loading?: boolean;
   emptyMessage: string;
 }
 
-export function RepositoryListView({
-  data,
-  title,
-  loading,
-  emptyMessage,
-}: Props) {
+export function RepositoryListView<
+  T extends GitHubRepository | SavedRepository,
+>({ data, title, loading, emptyMessage }: Props<T>) {
   return (
     <Container>
       <Title>{title}</Title>
