@@ -35,7 +35,7 @@ export default function RegisterScreen() {
       let remotePhotoUrl = null;
 
       if (photoUri) {
-        remotePhotoUrl = await uploadImage(photoUri);
+        remotePhotoUrl = await uploadImage(photoUri, firebaseUser.uid);
       }
 
       await updateProfile(firebaseUser, {
