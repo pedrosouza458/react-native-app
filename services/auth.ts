@@ -1,8 +1,7 @@
-import { FirebaseError } from "firebase/app";
 import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -15,11 +14,6 @@ export const signUp = async (name: string, password: string) => {
     );
     return userCredential.user;
   } catch (error) {
-    if (error instanceof FirebaseError) {
-      if (error.code === "auth/email-already-in-use") {
-        throw new Error("Email already in use.");
-      }
-    }
     throw error;
   }
 };

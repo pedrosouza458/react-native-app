@@ -1,7 +1,7 @@
 import { usePhoto } from "@/hooks/usePhoto";
 import { signUp } from "@/services/auth";
 import { uploadImage } from "@/services/storage";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { updateProfile } from "firebase/auth";
 import { useState } from "react";
@@ -90,6 +90,9 @@ export default function RegisterScreen() {
         <StyledButton onPress={handleRegister}>
           <ButtonText>Register</ButtonText>
         </StyledButton>
+        <RedirectText>
+          Already have a account? <Link href="/(auth)">Sign on</Link>
+        </RedirectText>
       </Container>
     </TouchableWithoutFeedback>
   );
@@ -162,4 +165,9 @@ const ButtonText = styled.Text`
   color: #fff;
   font-size: 16px;
   font-weight: 600;
+`;
+
+export const RedirectText = styled.Text`
+  text-align: center;
+  margin-top: 6px;
 `;
