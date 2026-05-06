@@ -12,7 +12,7 @@ export async function initializeDatabase(db: SQLiteDatabase) {
      profile_picture TEXT,
      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
      updated_at DATETIME
-    )
+    );
     CREATE TABLE IF NOT EXISTS favorite_repositories (
      id INTEGER PRIMARY KEY NOT NULL,
      name TEXT NOT NULL,
@@ -25,6 +25,13 @@ export async function initializeDatabase(db: SQLiteDatabase) {
      html_url TEXT NOT NULL,
      deleted INTEGER NOT NULL DEFAULT 0,
      synced INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS user_favorite_repositories (
+     user_id TEXT NOT NULL,
+     repository_id INTEGER NOT NULL,
+     PRIMARY KEY (user_id, repository_id),
+     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+     FOREIGN KEY (repository_id) REFERENCES favorite_repositories(id) ON DELETE CASCADE
     );
     `);
     console.log("database initialized successfully");
