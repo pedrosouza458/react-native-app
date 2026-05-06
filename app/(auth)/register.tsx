@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { updateProfile } from "firebase/auth";
 import { useState } from "react";
+import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import styled from "styled-components/native";
 
 export default function RegisterScreen() {
@@ -54,41 +55,43 @@ export default function RegisterScreen() {
   };
 
   return (
-    <Container>
-      <Title>Register Account</Title>
-      <AvatarPreview
-        source={{ uri: photoUri || "https://via.placeholder.com/100" }}
-      />
-      <PhotoActionContainer>
-        <SecondaryButton onPress={handleTakePhoto}>
-          <SecondaryButtonText>📷 Camera</SecondaryButtonText>
-        </SecondaryButton>
-        <SecondaryButton onPress={handlePickFromGallery}>
-          <SecondaryButtonText>🖼️ Gallery</SecondaryButtonText>
-        </SecondaryButton>
-      </PhotoActionContainer>
-      <Input
-        placeholder="Name"
-        value={name}
-        onChangeText={setName}
-        autoCapitalize="none"
-      />
-      <Input
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-      <Input
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <StyledButton onPress={handleRegister}>
-        <ButtonText>Register</ButtonText>
-      </StyledButton>
-    </Container>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <Container>
+        <Title>Register Account</Title>
+        <AvatarPreview
+          source={{ uri: photoUri || "https://via.placeholder.com/100" }}
+        />
+        <PhotoActionContainer>
+          <SecondaryButton onPress={handleTakePhoto}>
+            <SecondaryButtonText>📷 Camera</SecondaryButtonText>
+          </SecondaryButton>
+          <SecondaryButton onPress={handlePickFromGallery}>
+            <SecondaryButtonText>🖼️ Gallery</SecondaryButtonText>
+          </SecondaryButton>
+        </PhotoActionContainer>
+        <Input
+          placeholder="Name"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="none"
+        />
+        <Input
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+        />
+        <Input
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <StyledButton onPress={handleRegister}>
+          <ButtonText>Register</ButtonText>
+        </StyledButton>
+      </Container>
+    </TouchableWithoutFeedback>
   );
 }
 
