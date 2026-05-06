@@ -1,16 +1,30 @@
 import { signUp } from "@/services/auth";
 import { useRouter } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
+import { updateProfile } from "firebase/auth";
 import { useState } from "react";
 import styled from "styled-components/native";
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [name, setName] = useState<string>("");
   const router = useRouter();
 
-  const register = async () => {
+  const db = useSQLiteContext();
+
+  const handleRegister = async () => {
     try {
-      await signUp(email, password);
+      const firebaseUser = await signUp(email, password);
+
+      await updateProfile(firebaseUser, {
+        displayName: name,
+      });
+
+      await db.runAsync(
+        "INSERT INTO users (id, name, email) VALUES (?, ?, ?)",
+        [firebaseUser.uid, name, email],
+      );
       alert("Account created");
       router.replace("/");
     } catch (error) {
@@ -21,6 +35,12 @@ export default function RegisterScreen() {
   return (
     <Container>
       <Title>Register Account</Title>
+      <Input
+        placeholder="Name"
+        value={name}
+        onChangeText={setName}
+        autoCapitalize="none"
+      />
       <Input
         placeholder="Email"
         value={email}
@@ -33,7 +53,7 @@ export default function RegisterScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <StyledButton onPress={register}>
+      <StyledButton onPress={handleRegister}>
         <ButtonText>Register</ButtonText>
       </StyledButton>
     </Container>
