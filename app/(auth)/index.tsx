@@ -1,5 +1,5 @@
 import { signIn } from "@/services/auth";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import styled from "styled-components/native";
@@ -39,6 +39,10 @@ export default function LoginScreen() {
         <StyledButton onPress={handleLogin}>
           <ButtonText>Login</ButtonText>
         </StyledButton>
+        <RedirectText>
+          Don't have a account?{" "}
+          <Link href="/(auth)/register">Create a account</Link>
+        </RedirectText>
       </Container>
     </TouchableWithoutFeedback>
   );
@@ -81,4 +85,9 @@ const ButtonText = styled.Text`
   color: #fff;
   font-size: 16px;
   font-weight: 600;
+`;
+
+export const RedirectText = styled.Text`
+  text-align: center;
+  margin-top: 6px;
 `;
