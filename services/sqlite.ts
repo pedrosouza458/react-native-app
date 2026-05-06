@@ -2,9 +2,17 @@ import { type SQLiteDatabase } from "expo-sqlite";
 
 export async function initializeDatabase(db: SQLiteDatabase) {
   try {
-    // await db.execAsync(`DROP TABLE IF EXISTS favorite_repositories;`);
     await db.execAsync(`
     PRAGMA journal_mode = WAL;
+    CREATE TABLE IF NOT EXISTS users (
+     id TEXT NOT NULL,
+     github_id INTEGER,
+     name TEXT NOT NULL,
+     email TEXT,
+     profile_picture TEXT,
+     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+     updated_at DATETIME
+    )
     CREATE TABLE IF NOT EXISTS favorite_repositories (
      id INTEGER PRIMARY KEY NOT NULL,
      name TEXT NOT NULL,
