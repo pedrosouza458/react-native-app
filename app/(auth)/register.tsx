@@ -1,3 +1,4 @@
+import { usePhoto } from "@/hooks/usePhoto";
 import { signUp } from "@/services/auth";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
@@ -9,9 +10,21 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const { takePhoto, pickFromGallery } = usePhoto();
   const router = useRouter();
 
   const db = useSQLiteContext();
+
+  const handleTakePhoto = async () => {
+    const uri = await takePhoto();
+    if (uri) setPhotoUri(uri);
+  };
+
+  const handlePickFromGallery = async () => {
+    const uri = await pickFromGallery();
+    if (uri) setPhotoUri(uri);
+  };
 
   const handleRegister = async () => {
     try {
@@ -19,12 +32,15 @@ export default function RegisterScreen() {
 
       await updateProfile(firebaseUser, {
         displayName: name,
+        photoURL: photoUri,
       });
 
       await db.runAsync(
-        "INSERT INTO users (id, name, email) VALUES (?, ?, ?)",
-        [firebaseUser.uid, name, email],
+        "INSERT INTO users (id, name, email, profile_picture) VALUES (?, ?, ?, ?)",
+        [firebaseUser.uid, name, email, photoUri],
       );
+      const allUsers = await db.getAllAsync("SELECT * FROM users");
+      console.log(JSON.stringify(allUsers, null, 2));
       alert("Account created");
       router.replace("/");
     } catch (error) {
@@ -35,6 +51,17 @@ export default function RegisterScreen() {
   return (
     <Container>
       <Title>Register Account</Title>
+      <AvatarPreview
+        source={{ uri: photoUri || "https://via.placeholder.com/100" }}
+      />
+      <PhotoActionContainer>
+        <SecondaryButton onPress={handleTakePhoto}>
+          <SecondaryButtonText>📷 Camera</SecondaryButtonText>
+        </SecondaryButton>
+        <SecondaryButton onPress={handlePickFromGallery}>
+          <SecondaryButtonText>🖼️ Gallery</SecondaryButtonText>
+        </SecondaryButton>
+      </PhotoActionContainer>
       <Input
         placeholder="Name"
         value={name}
@@ -59,6 +86,36 @@ export default function RegisterScreen() {
     </Container>
   );
 }
+
+export const AvatarPreview = styled.Image`
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  align-self: center;
+  margin-bottom: 15px;
+  background-color: #e1e1e1;
+`;
+
+export const PhotoActionContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 0 20px;
+`;
+
+export const SecondaryButton = styled.TouchableOpacity`
+  background-color: #e5e5ea;
+  padding: 10px 15px;
+  border-radius: 8px;
+  align-items: center;
+  flex: 0.48;
+`;
+
+export const SecondaryButtonText = styled.Text`
+  color: #007aff;
+  font-size: 14px;
+  font-weight: 600;
+`;
 
 export const Container = styled.View`
   flex: 1;
