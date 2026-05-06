@@ -69,6 +69,7 @@ function RootLayoutNav() {
             name="modal"
             options={{ presentation: "modal", title: "" }}
           />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen
             name="repo/[id]"
             options={{
