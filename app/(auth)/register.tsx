@@ -1,5 +1,6 @@
 import { usePhoto } from "@/hooks/usePhoto";
 import { signUp } from "@/services/auth";
+import { uploadImage } from "@/services/storage";
 import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { updateProfile } from "firebase/auth";
@@ -30,6 +31,12 @@ export default function RegisterScreen() {
     try {
       const firebaseUser = await signUp(email, password);
 
+      let remotePhotoUrl = null;
+
+      if (photoUri) {
+        remotePhotoUrl = await uploadImage(photoUri);
+      }
+
       await updateProfile(firebaseUser, {
         displayName: name,
         photoURL: photoUri,
@@ -37,10 +44,8 @@ export default function RegisterScreen() {
 
       await db.runAsync(
         "INSERT INTO users (id, name, email, profile_picture) VALUES (?, ?, ?, ?)",
-        [firebaseUser.uid, name, email, photoUri],
+        [firebaseUser.uid, name, email, remotePhotoUrl],
       );
-      const allUsers = await db.getAllAsync("SELECT * FROM users");
-      console.log(JSON.stringify(allUsers, null, 2));
       alert("Account created");
       router.replace("/");
     } catch (error) {
