@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { useFavoriteRepos } from "@/hooks/useFavoriteRepos";
 import { auth } from "@/services/firebase";
 import { initializeDatabase } from "@/services/sqlite";
 import { onAuthStateChanged, User } from "@firebase/auth";
@@ -81,6 +82,7 @@ function RootLayoutNav({ user }: { user: User | null }) {
 
   return (
     <SQLiteProvider databaseName="gitlist.db" onInit={initializeDatabase}>
+      <FavoritesInitialLoader />
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen
@@ -105,4 +107,14 @@ function RootLayoutNav({ user }: { user: User | null }) {
       </ThemeProvider>
     </SQLiteProvider>
   );
+}
+
+function FavoritesInitialLoader() {
+  const { loadFavorites } = useFavoriteRepos();
+
+  useEffect(() => {
+    loadFavorites();
+  }, [loadFavorites]);
+
+  return null;
 }

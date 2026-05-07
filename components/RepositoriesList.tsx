@@ -26,7 +26,7 @@ export default function RepositoriesList() {
       data={repos}
       title="Trending Repositories"
       emptyMessage="No repository were found."
-      loading={false}
+      loading={loading}
     />
   );
 }

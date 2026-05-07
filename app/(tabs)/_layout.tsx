@@ -7,9 +7,9 @@ import { Text } from "@/components/Themed";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
+import { useFavoriteRepos } from "@/hooks/useFavoriteRepos";
 import { syncDatabases } from "@/services/syncDatabases";
-import { useRepoState } from "@/store/useRepoStore";
-import { useSQLiteContext } from "expo-sqlite";
+import { useFavoriteRepoStore } from "@/store/useFavoriteRepoStore";
 import { StarIcon } from "phosphor-react-native";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -22,16 +22,15 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const db = useSQLiteContext();
-  const loadFavoriteRepos = useRepoState((state) => state.loadFavorites);
-  const savedCount = useRepoState((state) => state.savedRepos.length);
+
+  const { loadFavorites } = useFavoriteRepos();
+
+  const savedCount = useFavoriteRepoStore((state) => state.savedRepos.length);
 
   useEffect(() => {
-    if (db) {
-      loadFavoriteRepos(db);
-      syncDatabases();
-    }
-  }, [db]);
+    loadFavorites();
+    syncDatabases();
+  }, [loadFavorites]);
 
   return (
     <Tabs

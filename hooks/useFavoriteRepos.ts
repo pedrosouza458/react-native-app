@@ -1,24 +1,22 @@
 import { auth } from "@/services/firebase";
 import { syncDatabases } from "@/services/syncDatabases";
+import { useFavoriteRepoStore } from "@/store/useFavoriteRepoStore";
 import {
   FavoriteRepository,
   GitHubRepository,
   SavedRepository,
 } from "@/types/github";
-import { SQLiteDatabase } from "expo-sqlite";
-import { create } from "zustand";
+import { useSQLiteContext } from "expo-sqlite";
+import { useCallback, useState } from "react";
 
-interface RepoState {
-  savedRepos: SavedRepository[];
-  loadFavorites: (db: SQLiteDatabase) => void;
-  favorite: (repo: GitHubRepository, db: SQLiteDatabase) => void;
-  unfavorite: (repoId: number, db: SQLiteDatabase) => void;
-}
+export function useFavoriteRepos() {
+  const db = useSQLiteContext();
+  const setStoreRepos = useFavoriteRepoStore((state) => state.setSavedRepos);
+  const [isLoading, setIsLoading] = useState(true);
 
-export const useRepoState = create<RepoState>((set) => ({
-  savedRepos: [],
-  loadFavorites: async (db) => {
+  const loadFavorites = useCallback(async () => {
     try {
+      setIsLoading(true);
       const userId = auth.currentUser?.uid || "guest_user";
       console.log(userId);
 
@@ -29,13 +27,15 @@ export const useRepoState = create<RepoState>((set) => ({
         [userId],
       );
 
-      const savedRepos = rows.map(toDomain);
-      set({ savedRepos });
+      setStoreRepos(rows.map(toDomain));
     } catch (error) {
       console.error("Failed to load favorite repos: ", error);
+    } finally {
+      setIsLoading(false);
     }
-  },
-  favorite: async (repo, db) => {
+  }, [db, setStoreRepos]);
+
+  const favorite = async (repo: GitHubRepository) => {
     const favoriteRepo: SavedRepository = {
       id: repo.id,
       name: repo.name || "",
@@ -77,18 +77,17 @@ export const useRepoState = create<RepoState>((set) => ({
         );
       }
 
-      set((state) => {
-        return { savedRepos: [...state.savedRepos, favoriteRepo] };
-      });
+      await loadFavorites();
 
-      syncDatabases().catch((err) =>
-        console.error("Background sync failed", err),
-      );
+      syncDatabases().catch((error) => {
+        console.error("Background sync failed ", error);
+      });
     } catch (error) {
-      console.error("Error saving repository in database.", error);
+      console.error("Error saving repository in database: ", error);
     }
-  },
-  unfavorite: async (id, db) => {
+  };
+
+  const unfavorite = async (id: number) => {
     try {
       const userId = auth.currentUser?.uid || "guest_user";
 
@@ -97,16 +96,18 @@ export const useRepoState = create<RepoState>((set) => ({
         [userId, id],
       );
 
-      set((state) => ({
-        savedRepos: state.savedRepos.filter((repo) => repo.id !== id),
-      }));
+      await loadFavorites();
 
-      syncDatabases();
+      syncDatabases().catch((error) => {
+        console.error("Background sync failed ", error);
+      });
     } catch (error) {
-      console.error("Error removing repository in database.", error);
+      console.error("Failed to remove repository in database: ", error);
     }
-  },
-}));
+  };
+
+  return { isLoading, loadFavorites, favorite, unfavorite };
+}
 
 function toDomain(row: FavoriteRepository): SavedRepository {
   return {
