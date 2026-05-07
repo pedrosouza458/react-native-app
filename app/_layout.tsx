@@ -5,13 +5,15 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { auth } from "@/services/firebase";
 import { initializeDatabase } from "@/services/sqlite";
+import { onAuthStateChanged, User } from "@firebase/auth";
 import { SQLiteProvider } from "expo-sqlite";
 
 export {
@@ -33,10 +35,21 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setIsAuthReady(true);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (loaded) {
@@ -44,15 +57,27 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
+  if (!loaded || !isAuthReady) {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return <RootLayoutNav user={user} />;
 }
 
-function RootLayoutNav() {
+function RootLayoutNav({ user }: { user: User | null }) {
   const colorScheme = useColorScheme();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (!user && !inAuthGroup) {
+      router.replace("/(auth)");
+    } else if (user && inAuthGroup) {
+      router.replace("/(tabs)");
+    }
+  }, [user, segments]);
 
   return (
     <SQLiteProvider databaseName="gitlist.db" onInit={initializeDatabase}>
