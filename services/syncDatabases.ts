@@ -1,37 +1,48 @@
 import { FavoriteRepository } from "@/types/github";
 import * as SQLite from "expo-sqlite";
-import {
-    addDoc,
-    collection,
-    deleteDoc,
-    doc,
-    getDocs,
-    query,
-    where,
-} from "firebase/firestore";
-import { db } from "./firebase";
+import { deleteDoc, doc, setDoc } from "firebase/firestore";
+import { auth, db } from "./firebase";
 
 let isSyncing = false;
 export const syncDatabases = async () => {
-  if (isSyncing) return;
+  const user = auth.currentUser;
+
+  if (isSyncing || !user) return;
+
   isSyncing = true;
   try {
     const sqliteDb = await SQLite.openDatabaseAsync("gitlist.db");
 
     const toDelete = await sqliteDb.getAllAsync<FavoriteRepository>(
-      "SELECT * FROM favorite_repositories WHERE deleted = 1",
+      `SELECT fr.* FROM favorite_repositories fr  
+       JOIN user_favorite_repositories ufr ON fr.id = ufr.repository_id
+       WHERE ufr.is_deleted = 1 AND ufr.user_id = ?`,
+      [user.uid],
     );
 
     if (toDelete.length > 0) {
       for (const item of toDelete) {
         try {
-          if (item.synced === 1) {
-            await deleteFavoriteRepository(item.id);
-          }
+          await deleteDoc(
+            doc(db, `users/${user.uid}/favorites`, item.id.toString()),
+          );
           await sqliteDb.runAsync(
-            "DELETE FROM favorite_repositories WHERE id = ?",
+            "DELETE FROM user_favorite_repositories WHERE repository_id = ? AND user_id = ?",
+            [item.id, user.uid],
+          );
+
+          const isStillReferenced = await sqliteDb.getFirstAsync(
+            "SELECT 1 FROM user_favorite_repositories WHERE repository_id = ?",
             [item.id],
           );
+
+          if (!isStillReferenced) {
+            await sqliteDb.runAsync(
+              "DELETE FROM favorite_repositories WHERE id = ?",
+              [item.id],
+            );
+          }
+
           console.log(`Repo with id ${item.id} removed from sql`);
         } catch (error) {
           console.log(`Failed to remove repo with id ${item.id} from sqlite`);
@@ -40,7 +51,10 @@ export const syncDatabases = async () => {
     }
 
     const pending = await sqliteDb.getAllAsync<FavoriteRepository>(
-      "SELECT * FROM favorite_repositories WHERE synced = 0 AND deleted = 0",
+      `SELECT fr.* FROM favorite_repositories fr 
+       JOIN user_favorite_repositories ufr ON fr.id = ufr.repository_id
+       WHERE ufr.is_deleted = 0 AND ufr.is_synced = 0 AND ufr.user_id = ?`,
+      [user.uid],
     );
 
     if (pending.length > 0) {
@@ -48,7 +62,12 @@ export const syncDatabases = async () => {
 
       for (const item of pending) {
         const firebaseDb = db;
-        await addDoc(collection(firebaseDb, "favorite_repositories"), {
+        const docRef = doc(
+          db,
+          `users/${user.uid}/favorites`,
+          item.id.toString(),
+        );
+        await setDoc(docRef, {
           name: item.name,
           full_name: item.full_name,
           login: item.login,
@@ -61,8 +80,8 @@ export const syncDatabases = async () => {
         });
 
         await sqliteDb.runAsync(
-          "UPDATE favorite_repositories SET synced = 1 where id = ?",
-          [item.id],
+          "UPDATE user_favorite_repositories SET is_synced = 1 WHERE repository_id = ? AND user_id = ?",
+          [item.id, user.uid],
         );
       }
       console.log("Syncing completed with sucessfully!");
@@ -72,20 +91,4 @@ export const syncDatabases = async () => {
   } finally {
     isSyncing = false;
   }
-};
-
-export const deleteFavoriteRepository = async (remoteId: number) => {
-  const favoritesRepositories = collection(db, "favorite_repositories");
-
-  const q = query(favoritesRepositories, where("remote_id", "==", remoteId));
-
-  const getRepo = await getDocs(q);
-
-  if (getRepo.empty) {
-    console.log(`Repo with remote id ${remoteId} not found.`);
-    return;
-  }
-
-  const firestoreId = getRepo.docs[0].id;
-  await deleteDoc(doc(db, "favorite_repositories", firestoreId));
 };

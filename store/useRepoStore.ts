@@ -1,3 +1,4 @@
+import { auth } from "@/services/firebase";
 import { syncDatabases } from "@/services/syncDatabases";
 import {
   FavoriteRepository,
@@ -18,8 +19,14 @@ export const useRepoState = create<RepoState>((set) => ({
   savedRepos: [],
   loadFavorites: async (db) => {
     try {
+      const userId = auth.currentUser?.uid || "guest_user";
+      console.log(userId);
+
       const rows = await db.getAllAsync<FavoriteRepository>(
-        "SELECT * FROM favorite_repositories WHERE DELETED = 0",
+        `SELECT fr.* FROM favorite_repositories AS fr 
+         JOIN user_favorite_repositories AS ufr on fr.id = ufr.repository_id
+         WHERE ufr.user_id = ? AND ufr.is_deleted = 0`,
+        [userId],
       );
 
       const savedRepos = rows.map(toDomain);
@@ -41,8 +48,6 @@ export const useRepoState = create<RepoState>((set) => ({
       language: repo.language || "Unknown",
       stargazers_count: repo.stargazers_count || 0,
       html_url: repo.html_url || "",
-      deleted: 0,
-      synced: 0,
     };
 
     const params = [
@@ -55,14 +60,22 @@ export const useRepoState = create<RepoState>((set) => ({
       favoriteRepo.stargazers_count,
       favoriteRepo.language,
       favoriteRepo.html_url,
-      0,
-      0,
     ];
     try {
+      const userId = auth.currentUser?.uid || "guest_user";
+
       await db.runAsync(
-        "INSERT OR REPLACE INTO favorite_repositories (id, name, full_name, description, login, avatar_url, stargazers_count, language, html_url, deleted, synced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT OR REPLACE INTO favorite_repositories (id, name, full_name, description, login, avatar_url, stargazers_count, language, html_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         params,
       );
+
+      if (userId) {
+        const repoId = params[0];
+        await db.runAsync(
+          "INSERT OR REPLACE INTO user_favorite_repositories (user_id, repository_id, is_deleted, is_synced) VALUES (?, ?, 0, 0)",
+          [userId, repoId],
+        );
+      }
 
       set((state) => {
         return { savedRepos: [...state.savedRepos, favoriteRepo] };
@@ -77,9 +90,11 @@ export const useRepoState = create<RepoState>((set) => ({
   },
   unfavorite: async (id, db) => {
     try {
+      const userId = auth.currentUser?.uid || "guest_user";
+
       await db.runAsync(
-        "UPDATE favorite_repositories SET deleted = 1 WHERE id = ?",
-        [id],
+        "INSERT OR REPLACE INTO user_favorite_repositories (user_id, repository_id, is_deleted, is_synced) VALUES (?, ?, 1, 0)",
+        [userId, id],
       );
 
       set((state) => ({
@@ -106,8 +121,6 @@ function toDomain(row: FavoriteRepository): SavedRepository {
       login: row.login,
       avatar_url: row.avatar_url,
     },
-    deleted: row.deleted,
-    synced: row.synced,
   };
 }
 
@@ -122,7 +135,5 @@ function toDatabase(repo: SavedRepository): FavoriteRepository {
     stargazers_count: repo.stargazers_count,
     language: repo.language || "Unknown",
     html_url: repo.html_url,
-    deleted: repo.deleted,
-    synced: repo.synced,
   };
 }

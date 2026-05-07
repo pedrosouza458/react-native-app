@@ -2,6 +2,11 @@ import { type SQLiteDatabase } from "expo-sqlite";
 
 export async function initializeDatabase(db: SQLiteDatabase) {
   try {
+    // await db.execAsync(
+    //   `DROP TABLE IF EXISTS user_favorite_repositories;
+    //   DROP TABLE IF EXISTS users;
+    //   DROP TABLE IF EXISTS favorite_repositories`,
+    // );
     await db.execAsync(`
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS users (
@@ -22,13 +27,13 @@ export async function initializeDatabase(db: SQLiteDatabase) {
      avatar_url TEXT,
      stargazers_count INTEGER NOT NULL DEFAULT 0,
      language TEXT,
-     html_url TEXT NOT NULL,
+     html_url TEXT NOT NULL
     );
     CREATE TABLE IF NOT EXISTS user_favorite_repositories (
      user_id TEXT NOT NULL,
      repository_id INTEGER NOT NULL,
-     delete INTEGER NOT NULL DEFAULT 0,
-     synced INTEGER NOT NULL DEFAULT 0,
+     is_deleted INTEGER NOT NULL DEFAULT 0,
+     is_synced INTEGER NOT NULL DEFAULT 0,
      PRIMARY KEY (user_id, repository_id),
      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
      FOREIGN KEY (repository_id) REFERENCES favorite_repositories(id) ON DELETE CASCADE

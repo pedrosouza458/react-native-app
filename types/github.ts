@@ -90,8 +90,6 @@ export interface SavedRepository {
   stargazers_count: number;
   language: string | null;
   html_url: string;
-  deleted: number;
-  synced: number;
 }
 
 export interface SavedRepositoryDetails {
@@ -118,6 +116,4 @@ export interface FavoriteRepository {
   stargazers_count: number;
   language: string | null;
   html_url: string;
-  deleted: number;
-  synced: number;
 }
