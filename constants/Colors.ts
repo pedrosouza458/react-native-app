@@ -12,7 +12,7 @@ export default {
     subtext: "#999",
     background: "#000",
     card: "#131315",
-    tint: "#fff",
+    tint: "#007aff",
     border: "#38383a",
   },
 };

@@ -98,39 +98,10 @@ export default function RegisterScreen() {
   );
 }
 
-export const AvatarPreview = styled.Image`
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
-  align-self: center;
-  margin-bottom: 15px;
-  background-color: #e1e1e1;
-`;
-
-export const PhotoActionContainer = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding: 0 20px;
-`;
-
-export const SecondaryButton = styled.TouchableOpacity`
-  background-color: #e5e5ea;
-  padding: 10px 15px;
-  border-radius: 8px;
-  align-items: center;
-  flex: 0.48;
-`;
-
-export const SecondaryButtonText = styled.Text`
-  color: #007aff;
-  font-size: 14px;
-  font-weight: 600;
-`;
-
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
+  background-color: ${({ theme }) => theme.background};
 `;
 
 export const Title = styled.Text`
@@ -138,27 +109,55 @@ export const Title = styled.Text`
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
-  color: #333;
+  color: ${({ theme }) => theme.text};
+`;
+
+export const AvatarPreview = styled.Image`
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  align-self: center;
+  margin-bottom: 15px;
+  background-color: ${({ theme }) => theme.border};
+`;
+
+export const PhotoActionContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+`;
+
+export const SecondaryButton = styled.TouchableOpacity`
+  background-color: ${({ theme }) => theme.card};
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 10px;
+  border-radius: 8px;
+  align-items: center;
+  flex: 0.48;
+`;
+
+export const SecondaryButtonText = styled.Text`
+  color: ${({ theme }) => theme.tint};
+  font-size: 14px;
+  font-weight: 600;
 `;
 
 export const Input = styled.TextInput`
   border-width: 1px;
-  border-color: #ccc;
-  padding: 10px;
+  border-color: ${({ theme }) => theme.border};
+  color: ${({ theme }) => theme.text};
+  padding: 12px;
   margin-bottom: 10px;
-  border-radius: 5px;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.card};
 `;
 
-export const RegisterButton = styled.Button`
- background-color: #007aff,
- color: #fff
- `;
-
 const StyledButton = styled.TouchableOpacity`
-  background-color: #007aff;
+  background-color: ${({ theme }) => theme.tint};
   padding: 15px;
   border-radius: 8px;
   align-items: center;
+  margin-top: 10px;
 `;
 
 const ButtonText = styled.Text`
@@ -169,5 +168,6 @@ const ButtonText = styled.Text`
 
 export const RedirectText = styled.Text`
   text-align: center;
-  margin-top: 6px;
+  margin-top: 15px;
+  color: ${({ theme }) => theme.subtext};
 `;

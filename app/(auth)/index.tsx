@@ -2,12 +2,12 @@ import { signIn } from "@/services/auth";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
-import styled from "styled-components/native";
+import styled, { useTheme } from "styled-components/native";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
+  const theme = useTheme();
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -51,43 +51,43 @@ export default function LoginScreen() {
 export const Container = styled.View`
   flex: 1;
   padding: 20px;
+  background-color: ${({ theme }) => theme.background};
 `;
 
 export const Title = styled.Text`
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   text-align: center;
-  color: #333;
+  color: ${({ theme }) => theme.text};
 `;
 
 export const Input = styled.TextInput`
   border-width: 1px;
-  border-color: #ccc;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
+  border-color: ${({ theme }) => theme.border};
+  color: ${({ theme }) => theme.text};
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.card};
 `;
 
-export const RegisterButton = styled.Button`
- background-color: #007aff,
- color: #fff
- `;
-
 const StyledButton = styled.TouchableOpacity`
-  background-color: #007aff;
+  background-color: ${({ theme }) => theme.tint};
   padding: 15px;
   border-radius: 8px;
   align-items: center;
+  margin-top: 10px;
 `;
 
 const ButtonText = styled.Text`
-  color: #fff;
+  color: #fff; /* Mantemos branco para contraste no botão azul/principal */
   font-size: 16px;
   font-weight: 600;
 `;
 
 export const RedirectText = styled.Text`
   text-align: center;
-  margin-top: 6px;
+  margin-top: 20px;
+  color: ${({ theme }) => theme.subtext};
 `;
