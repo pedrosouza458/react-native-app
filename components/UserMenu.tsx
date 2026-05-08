@@ -1,8 +1,17 @@
+import { logout } from "@/services/auth";
 import { GearIcon, SignOutIcon, UserIcon } from "phosphor-react-native";
 import styled, { useTheme } from "styled-components/native";
 
 export default function UserMenu() {
   const theme = useTheme();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.log("error logging out: ", error);
+    }
+  };
   return (
     <Container>
       <MenuItem onPress={() => {}}>
@@ -14,7 +23,7 @@ export default function UserMenu() {
         <MenuItemText>Setting</MenuItemText>
       </MenuItem>
       <Separator />
-      <MenuItem onPress={() => {}}>
+      <MenuItem onPress={() => handleLogout()}>
         <SignOutIcon size={20} color={theme.subtext} />
         <MenuItemText>Logout</MenuItemText>
       </MenuItem>
