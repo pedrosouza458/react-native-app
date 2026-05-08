@@ -38,13 +38,14 @@ const Container = styled.View`
 `;
 
 const Title = styled.Text`
+  color: ${({ theme }) => theme.text};
   font-size: 26px;
   font-weight: bold;
   margin-bottom: 26px;
 `;
 
 const LoadingText = styled.Text`
-  color: #666;
+  color: ${({ theme }) => theme.subtext};
 `;
 
 const RepoNotFound = styled.Text`

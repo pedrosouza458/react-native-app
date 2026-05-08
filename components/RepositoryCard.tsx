@@ -105,10 +105,11 @@ export default function RepositoryCard({ data }: Props) {
 }
 
 const RepoCard = styled.View`
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.card};
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 12px;
+  border: 1px solid ${({ theme }) => theme.border};
   elevation: 2;
   shadow-color: #000;
   shadow-offset: 0px 2px;
@@ -126,48 +127,49 @@ const RepoHeader = styled.View`
 const RepoTitle = styled.Text`
   font-size: 18px;
   font-weight: bold;
-  color: #007aff;
+  color: ${({ theme }) => theme.tint};
   flex: 1;
   margin-right: 10px;
 `;
 
 const RepoOwner = styled.Text`
   flex-shrink: 0;
-  color: #586069;
+  color: ${({ theme }) => theme.subtext};
   font-size: 14px;
 `;
 
-const StarsContainer = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-top: 8px;
-  gap: 3px;
-`;
-
-const StargazeCount = styled.Text`
+const RepoDescription = styled.Text`
   font-size: 14px;
-  color: #586069;
-  margin-left: 4px;
-  include-font-padding: false;
-  line-height: 18px;
+  color: ${({ theme }) => theme.text};
+  line-height: 20px;
 `;
-
-const RepoDescription = styled.Text``;
 
 const RepoFooter = styled.View`
   margin-top: 12px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+`;
+
+const StarsContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 3px;
+`;
+
+const StargazeCount = styled.Text`
+  font-size: 14px;
+  color: ${({ theme }) => theme.subtext};
+  margin-left: 4px;
 `;
 
 const RepoLanguage = styled.Text<RepoLanguageProps>`
   font-size: 12px;
-  color: #fff;
+  color: #fff; /* Texto da linguagem geralmente mantém contraste fixo */
   background-color: ${({ language }) =>
     languageColors[language || ""] || languageColors.default};
-  padding: 8px;
+  padding: 4px 12px;
   border-radius: 14px;
   font-weight: bold;
+  overflow: hidden;
 `;

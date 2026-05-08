@@ -69,15 +69,15 @@ export default function RepositoryDetails({ data }: Props) {
 // Estilização com Styled Components
 const Container = styled.ScrollView`
   flex: 1;
-  background-color: #f6f8fa;
+  background-color: ${({ theme }) => theme.background};
 `;
 
 const Header = styled.View`
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.card};
   align-items: center;
   padding: 40px 20px;
   border-bottom-width: 1px;
-  border-bottom-color: #e1e4e8;
+  border-bottom-color: ${({ theme }) => theme.border};
 `;
 
 const Avatar = styled.Image`
@@ -92,7 +92,7 @@ const Avatar = styled.Image`
 
 const ServiceName = styled.Text`
   font-size: 12px;
-  color: #586069;
+  color: ${({ theme }) => theme.subtext};
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 12px;
@@ -100,50 +100,50 @@ const ServiceName = styled.Text`
 
 const OwnerName = styled.Text`
   font-size: 16px;
-  color: #586069;
+  color: ${({ theme }) => theme.subtext};
   margin-bottom: 4px;
 `;
 
 const RepoName = styled.Text`
   font-size: 26px;
   font-weight: bold;
-  color: #1f2328;
+  color: ${({ theme }) => theme.text};
   text-align: center;
 `;
 
 const FullName = styled.Text`
   font-size: 14px;
-  color: #0969da;
+  color: ${({ theme }) => theme.tint};
   margin-top: 4px;
 `;
 
 const StatsRow = styled.View`
   flex-direction: row;
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.card};
   margin-top: 12px;
   padding: 20px 0;
   border-top-width: 1px;
   border-bottom-width: 1px;
-  border-color: #e1e4e8;
+  border-color: ${({ theme }) => theme.border};
 `;
 
 const StatItem = styled.View<StatItemProps>`
   flex: 1;
   align-items: center;
   border-right-width: ${({ last }) => (last ? "0px" : "1px")};
-  border-right-color: #e1e4e8;
+  border-right-color: ${({ theme }) => theme.border};
 `;
 
 const StatValue = styled.Text`
   font-size: 18px;
   font-weight: bold;
-  color: #1f2328;
+  color: ${({ theme }) => theme.text};
   margin-top: 4px;
 `;
 
 const StatLabel = styled.Text`
   font-size: 12px;
-  color: #586069;
+  color: ${({ theme }) => theme.subtext};
   text-transform: uppercase;
 `;
 
@@ -154,13 +154,13 @@ const Content = styled.View`
 const SectionTitle = styled.Text`
   font-size: 18px;
   font-weight: bold;
-  color: #1f2328;
+  color: ${({ theme }) => theme.text};
   margin-bottom: 8px;
 `;
 
 const Description = styled.Text`
   font-size: 16px;
-  color: #444d56;
+  color: ${({ theme }) => theme.text};
   line-height: 24px;
   margin-bottom: 32px;
 `;
