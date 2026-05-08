@@ -2,15 +2,17 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
+import { ThemeProvider } from "styled-components/native";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import Colors from "@/constants/Colors";
 import { useFavoriteRepos } from "@/hooks/useFavoriteRepos";
 import { auth } from "@/services/firebase";
 import { initializeDatabase } from "@/services/sqlite";
@@ -83,27 +85,33 @@ function RootLayoutNav({ user }: { user: User | null }) {
   return (
     <SQLiteProvider databaseName="gitlist.db" onInit={initializeDatabase}>
       <FavoritesInitialLoader />
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              headerShown: false,
-              title: "",
-            }}
-          />
-          <Stack.Screen
-            name="modal"
-            options={{ presentation: "modal", title: "" }}
-          />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="repo/[id]"
-            options={{
-              headerBackTitle: "",
-            }}
-          />
-        </Stack>
+      <ThemeProvider
+        theme={colorScheme === "dark" ? Colors.dark : Colors.light}
+      >
+        <NavigationThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <Stack>
+            <Stack.Screen
+              name="(tabs)"
+              options={{
+                headerShown: false,
+                title: "",
+              }}
+            />
+            <Stack.Screen
+              name="modal"
+              options={{ presentation: "modal", title: "" }}
+            />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="repo/[id]"
+              options={{
+                headerBackTitle: "",
+              }}
+            />
+          </Stack>
+        </NavigationThemeProvider>
       </ThemeProvider>
     </SQLiteProvider>
   );

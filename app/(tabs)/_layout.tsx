@@ -1,13 +1,13 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import React, { useEffect } from "react";
-import { Pressable } from "react-native";
+import { Image, View } from "react-native";
 
-import { Text } from "@/components/Themed";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useFavoriteRepos } from "@/hooks/useFavoriteRepos";
+import { auth } from "@/services/firebase";
 import { syncDatabases } from "@/services/syncDatabases";
 import { useFavoriteRepoStore } from "@/store/useFavoriteRepoStore";
 import { StarIcon } from "phosphor-react-native";
@@ -18,6 +18,27 @@ function TabBarIcon(props: {
   color: string;
 }) {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+}
+
+function HeaderAvatar() {
+  const user = auth.currentUser;
+
+  return (
+    <View style={{ marginRight: 15, marginTop: 12, marginBottom: 12 }}>
+      {user ? (
+        <Image
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 50,
+          }}
+          source={{
+            uri: user?.photoURL || "https://via.placeholder.com/100",
+          }}
+        />
+      ) : null}
+    </View>
+  );
 }
 
 export default function TabLayout() {
@@ -31,7 +52,10 @@ export default function TabLayout() {
     loadFavorites();
     syncDatabases();
   }, [loadFavorites]);
-
+  const badgeColor =
+    colorScheme === "dark"
+      ? "#2f95dc" // Um azul bonito para o modo dark
+      : Colors[colorScheme ?? "light"].tint;
   return (
     <Tabs
       screenOptions={{
@@ -39,44 +63,41 @@ export default function TabLayout() {
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        headerTitle: "gitlist",
+        headerTitleAlign: "left",
+        headerRight: () => <HeaderAvatar />,
+        headerRightContainerStyle: {
+          paddingRight: 15,
+          paddingBottom: 15,
+          justifyContent: "flex-end",
+        },
+        headerTitleContainerStyle: {
+          paddingBottom: 20,
+          justifyContent: "flex-end",
+        },
+        headerStyle: {
+          height: 110,
+          backgroundColor: Colors[colorScheme ?? "light"].card,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Trending",
-          headerTitleAlign: "left",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <>
-              <Link href="/(auth)/register" asChild>
-                <Text>Register</Text>
-              </Link>
-              <Link href="/modal" asChild>
-                <Pressable>
-                  {({ pressed }) => (
-                    <FontAwesome
-                      name="info-circle"
-                      size={25}
-                      color={Colors[colorScheme ?? "light"].text}
-                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                    />
-                  )}
-                </Pressable>
-              </Link>
-            </>
-          ),
         }}
       />
       <Tabs.Screen
         name="two"
         options={{
           title: "Favorites",
-          headerTitleAlign: "left",
           tabBarIcon: ({ color }) => <StarIcon color={color} />,
           tabBarBadge: savedCount > 0 ? savedCount : undefined,
           tabBarBadgeStyle: {
-            backgroundColor: Colors[colorScheme ?? "light"].tint,
+            backgroundColor: badgeColor,
             color: "#fff",
           },
         }}
